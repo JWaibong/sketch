@@ -15,7 +15,7 @@ clear.addEventListener("click", function(e){
 });
 header.appendChild(clear);
 
-var allowDrawOver = false;
+var allowDrawOver = true;
 const drawOver = document.createElement("button");
 drawOver.textContent = "Toggle Draw Over";
 drawOver.addEventListener("click", function(e){
@@ -75,8 +75,13 @@ function initializeBoxes(dimension){
             const boxes1 = document.querySelectorAll(".colored");
             if(allowDrawOver){
                 boxes1.forEach(elem => {
-                    elem.removeEventListener("mouseenter",color);
-                    elem.addEventListener("mouseenter", color);
+                    if(colorOn){
+                        elem.removeEventListener("mouseenter",color);
+                        elem.addEventListener("mouseenter", color);
+                    }
+                    else{
+                        elem.removeEventListener("mouseenter",colorBW);
+                    }
                 });
             }
             else{
