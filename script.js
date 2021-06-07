@@ -1,5 +1,5 @@
 const container = document.querySelector("#container");
-setGrid(4);
+setGrid(16);
 
 const header = document.querySelector("h1");
 const clear = document.createElement("button");
@@ -15,19 +15,32 @@ clear.addEventListener("click", function(e){
 });
 header.appendChild(clear);
 
-var allowDrawOver = true;
+var allowDrawOver = false;
 const drawOver = document.createElement("button");
 drawOver.textContent = "Toggle Draw Over";
 drawOver.addEventListener("click", function(e){
     allowDrawOver = !allowDrawOver;
-    const boxes = document.querySelectorAll(".box");
-    boxes.forEach(box => {
+    const boxbox = document.querySelectorAll(".box");
+    boxbox.forEach(box => {
         let toggleDrawOver = new Event("toggleDrawOver");
         box.dispatchEvent(toggleDrawOver);
     });
 });
 
+var colorOn = true;
+const colorOrBW = document.createElement("button");
+colorOrBW.textContent = "Toggle Colors";
+colorOrBW.addEventListener("click", function(e){
+    colorOn = !colorOn;
+    const boxes = document.querySelectorAll(".box");
+    boxes.forEach(box => {
+        let toggleColor = new Event("toggleColor");
+        box.dispatchEvent(toggleColor);
+    });
+});
 
+
+header.appendChild(colorOrBW);
 header.appendChild(drawOver);
 
 function setGrid(dimension){
@@ -54,32 +67,63 @@ function initializeBoxes(dimension){
         box.classList.add("box");
         box.setAttribute("id", "box"+i);
         box.addEventListener("mouseenter", color);
+        box.addEventListener("mouseleave", toggleDraw);
+        box.addEventListener("wasDrawnOn", function(e){
+            e.target.dispatchEvent(new Event("toggleDrawOver"));
+        });
         box.addEventListener("toggleDrawOver", function(e){
-            const boxes = document.querySelectorAll(".box");
+            const boxes1 = document.querySelectorAll(".colored");
             if(allowDrawOver){
-                console.log("on");
-                boxes.forEach(elem => {
+                boxes1.forEach(elem => {
                     elem.removeEventListener("mouseenter",color);
                     elem.addEventListener("mouseenter", color);
                 });
             }
             else{
-                console.log("off");
-                boxes.forEach(elem => {
+                boxes1.forEach(elem => {
                     elem.removeEventListener("mouseenter",color);
                 });
             }
         });
+        box.addEventListener("toggleColor", function(e){
+            const boxes = document.querySelectorAll(".box");
+            if(colorOn){
+                boxes.forEach(elem => {
+                    elem.removeEventListener("mouseenter",colorBW);
+                    elem.removeEventListener("mouseenter",color);
+                    elem.addEventListener("mouseenter", color);
+                });
+            }
+            else{
+                boxes.forEach(elem => {
+                    elem.removeEventListener("mouseenter",colorBW);
+                    elem.removeEventListener("mouseenter",color);
+                    elem.addEventListener("mouseenter", colorBW);
+                });
+            }
+        });
+        
         container.appendChild(box);
+    }
+}
+function toggleDraw(e){
+    if(e.target.classList.contains("colored")){
+        let wasDrawnOn = new Event("wasDrawnOn");
+        e.target.dispatchEvent(wasDrawnOn);
     }
 }
 function color(e){
     let color1 = Math.floor(Math.random() * 256);
     let color2 = Math.floor(Math.random() * 256);
     let color3 = Math.floor(Math.random() * 256);
-    e.target.classList.add("colored")
+    e.target.classList.add("colored");
     e.target.style.cssText = `background-color: rgb(${color1}, ${color2}, ${color3});`;
 };
+
+function colorBW(e){
+    e.target.classList.add("colored");
+    e.target.style.cssText = `background-color: black;`;
+}
 function filterInt(value){
     if (/^[-+]?(\d+|Infinity)$/.test(value)) {
       return Number(value);
